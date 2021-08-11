@@ -181,6 +181,9 @@ MonoBehaviour:
   dmRange: 3
   cirRGSP: {fileID: 358324428376992161}
   cirDMSP: {fileID: 4777310783677458288}
+  roSpeed: 480
+  catchDeg: 3
+  launchLock: 1.5
   gravity: 30
   loadTime: 3
   hasbeenLoad: {r: 0.5411765, g: 0.8117647, b: 1, a: 1}

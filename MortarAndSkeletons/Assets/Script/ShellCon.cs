@@ -9,7 +9,7 @@ public enum ShellState
     over //结束表现
 }
 
-public class ShellCon : MonoBehaviour
+public class ShellCon : MonoBehaviour,PoolObj
 {
 
     //状态标签
@@ -44,39 +44,22 @@ public class ShellCon : MonoBehaviour
     public float disTime = 1.5f;//落地后消失时间
     float ndisTime; //当前消失时间
 
+    TrailRenderer trailRenderer;
+
+    ObjPool belongPool;
+    public ObjPool BelongPool { get { return belongPool; } set { belongPool = value; } }
+
+    string objName;
+    public string ObjName { get { return objName; } set { objName = value; } }
+
+    public GameObject Obj { get { return gameObject; } }
+
     private void Awake()
     {
 
         rgbody = gameObject.GetComponent<Rigidbody>();
         meshRenderer = gameObject.GetComponent<MeshRenderer>();
-    }
-
-
-    public void shellInit(Vector3 bpos,Vector3 tpos,float y,float g) //初始化 激活发射
-    {
-        //参数转移
-        basePos = bpos;
-        tarPos = new Vector3(tpos.x,tpos.y+shellRadius,tpos.z);
-
-        vy = y;
-
-        //初始化
-        transform.position = basePos;
-
-        nbfT = 0;
-        flyTime = 0;
-        ndisTime = 0;
-        totalTime = 2 * vy / g;
-
-        tarY = 0.5f * vy * vy / g;
-
-        state = ShellState.onFly;
-
-        vx = Vector3.Distance(new Vector3(basePos.x, 0, basePos.z), new Vector3(tarPos.x, 0, tarPos.y)) / totalTime;
-
-        rgbody.isKinematic = true;
-        rgbody.useGravity = false;
-
+        trailRenderer = gameObject.GetComponent<TrailRenderer>();
     }
 
     private void Update()
@@ -132,11 +115,59 @@ public class ShellCon : MonoBehaviour
             ndisTime += Time.deltaTime;
             if(ndisTime>= disTime)
             {
-                state = ShellState.over;
-                gameObject.SetActive(false);
+                hangUp();           
             }
 
             meshRenderer.material.color = new Color(meshRenderer.material.color.r, meshRenderer.material.color.g, meshRenderer.material.color.b, 1-ndisTime / disTime);
         }
+    }
+
+
+    public void shellInit(Vector3 bpos, Vector3 tpos, float y, float g)
+    {
+        //参数转移
+        basePos = bpos;
+        tarPos = new Vector3(tpos.x, tpos.y + shellRadius, tpos.z);
+
+        vy = y;
+
+        //初始化
+        
+        transform.position = basePos;
+        trailRenderer.Clear();
+
+        nbfT = 0;
+        flyTime = 0;
+        ndisTime = 0;
+        totalTime = 2 * vy / g;
+
+        tarY = 0.5f * vy * vy / g;
+
+        vx = Vector3.Distance(new Vector3(basePos.x, 0, basePos.z), new Vector3(tarPos.x, 0, tarPos.y)) / totalTime;
+    }
+
+    public void reSetObj()
+    {
+        rgbody.isKinematic = true;
+        rgbody.useGravity = false;
+        rgbody.velocity = Vector3.zero;
+        trailRenderer.Clear();
+
+        meshRenderer.material.color = new Color(meshRenderer.material.color.r, meshRenderer.material.color.g, meshRenderer.material.color.b, 1.0f);
+    }
+
+    public void startMove()
+    {
+        state = ShellState.onFly;
+        gameObject.SetActive(true);
+           
+    }
+
+    public void hangUp()
+    {
+
+        state = ShellState.over;
+        gameObject.SetActive(false);
+        belongPool.backtoPool(this);
     }
 }

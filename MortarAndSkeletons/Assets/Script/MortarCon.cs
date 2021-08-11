@@ -2,6 +2,14 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum MortarRoState //迫击炮旋转行为
+{
+    onRotate, //正在跟踪
+    Catch,    //捕获到的
+    Lock      //锁定无法旋转的
+}
+
+
 public class MortarCon : MonoBehaviour
 {
 
@@ -35,6 +43,19 @@ public class MortarCon : MonoBehaviour
     float lcz;
     float rcdis;//距离
     Vector2 rcnormal;
+
+
+    //旋转行为
+    MortarRoState roState = MortarRoState.onRotate;
+    public float roSpeed = 480.0f;//旋转跟踪速度(迫击炮LookAt 与 炮管共用这一速度)
+    public float catchDeg = 3.0f;//捕获允许最大偏移
+    public float launchLock = 1.5f;//发射锁定时间
+    float nlTime;//当前锁定时间
+    float roStep;
+    Vector3 lookVec;
+    Quaternion lookRo;
+
+
 
     //炮弹发射相关
 
@@ -102,9 +123,29 @@ public class MortarCon : MonoBehaviour
             rangeVis = !rangeVis;
             cirRGSP.SetActive(rangeVis);
             cirDMSP.SetActive(rangeVis);
+
+            if(!rangeVis&&roState==MortarRoState.Catch) roState = MortarRoState.onRotate; //当范围不可见时，若已捕捉，转为旋转
         }
 
-        if(rangeVis)
+        if(roState == MortarRoState.Lock)
+        {
+            nlTime += Time.deltaTime;
+            if (nlTime >= launchLock) roState = MortarRoState.onRotate;
+        }
+
+        if (!isLoad)
+        { //装填冷却
+            nlodtime += Time.deltaTime;
+            if (nlodtime >= loadTime)
+            {
+                isLoad = true;
+                cirDMRend.material.SetColor("_Color", hasbeenLoad);
+                cirDMRend.material.SetFloat("load", 1);
+            }
+            else cirDMRend.material.SetFloat("load", nlodtime / loadTime);
+        }
+
+        if (rangeVis)
         {
 
             if(Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition),out raycast,float.MaxValue,layerMask)) {//射线碰撞检测
@@ -136,11 +177,33 @@ public class MortarCon : MonoBehaviour
 
                 //设置迫击炮朝向&角度
 
-                gameObject.transform.LookAt(new Vector3(rcx, gameObject.transform.position.y, rcz), Vector3.up);
-                deg = Mathf.Asin(rcdis * gravity / bv2)*Mathf.Rad2Deg / 2.0f;
-                cannon.eulerAngles = new Vector3(cannon.eulerAngles.x, cannon.eulerAngles.y, deg);
+                if(roState == MortarRoState.onRotate) { //正在旋转 尝试进入 Catch
 
-                
+                    roStep = roSpeed * Time.deltaTime;
+                    lookVec = new Vector3(rcx, gameObject.transform.position.y, rcz) - gameObject.transform.position;
+                    //旋转迫击炮
+                    lookRo = Quaternion.LookRotation(lookVec, Vector3.up);
+                    gameObject.transform.rotation = Quaternion.RotateTowards(gameObject.transform.rotation, lookRo, roStep);
+
+                    //旋转炮管
+                    deg = Mathf.Asin(rcdis * gravity / bv2) * Mathf.Rad2Deg / 2.0f;
+                    cannon.eulerAngles = new Vector3(cannon.eulerAngles.x, cannon.eulerAngles.y,
+                        Mathf.MoveTowards(cannon.eulerAngles.z,deg, roStep));
+
+                    if (Vector3.Angle(transform.forward, lookVec) < catchDeg && Mathf.Abs(cannon.eulerAngles.z - deg) < catchDeg) roState = MortarRoState.Catch;
+
+
+
+                }
+                else if(roState == MortarRoState.Catch) //已捕获 
+                {
+                    gameObject.transform.LookAt(new Vector3(rcx, gameObject.transform.position.y, rcz), Vector3.up);
+
+                    //设置炮管角度
+                    deg = Mathf.Asin(rcdis * gravity / bv2) * Mathf.Rad2Deg / 2.0f;
+                    cannon.eulerAngles = new Vector3(cannon.eulerAngles.x, cannon.eulerAngles.y, deg);
+
+                }//else if(roState == MortarRoState.Lock) 锁定下不改变迫击炮和炮管的旋转
 
                 //设置 dmRange worldPositon Rotate
                 cirDMSP.transform.position = new Vector3(rcx, cirDMSP.transform.position.y, rcz);
@@ -152,13 +215,41 @@ public class MortarCon : MonoBehaviour
 
         if(Input.GetMouseButtonDown(0)&&rangeVis&&isLoad)
         {
+
+            //对齐朝向  ---  可能在开启Range后立刻发射，还未完成跟踪
+
+            if(roState == MortarRoState.onRotate)
+            {
+                gameObject.transform.LookAt(new Vector3(rcx, gameObject.transform.position.y, rcz), Vector3.up);
+
+                //设置炮管角度
+                deg = Mathf.Asin(rcdis * gravity / bv2) * Mathf.Rad2Deg / 2.0f;
+                cannon.eulerAngles = new Vector3(cannon.eulerAngles.x, cannon.eulerAngles.y, deg);
+
+                //设置 dmRange worldPositon Rotate
+                cirDMSP.transform.position = new Vector3(rcx, cirDMSP.transform.position.y, rcz);
+                cirDMSP.transform.eulerAngles = new Vector3(90, 0, 0);
+            }
+
             //发射炮弹
-            var shellCon = Instantiate(shell).GetComponent<ShellCon>();
-            shellCon.gameObject.SetActive(true);
-            shellCon.shellInit(shellPoint.position, 
-                new Vector3(cirDMSP.transform.position.x,transform.position.y, cirDMSP.transform.position.z), 
-                baseVelocity * Mathf.Cos(deg * Mathf.Deg2Rad), 
+            //var shellCon = Instantiate(shell).GetComponent<ShellCon>();
+            //shellCon.gameObject.SetActive(true);
+            //shellCon.shellInit(shellPoint.position, 
+            //    new Vector3(cirDMSP.transform.position.x,transform.position.y, cirDMSP.transform.position.z), 
+            //    baseVelocity * Mathf.Cos(deg * Mathf.Deg2Rad), 
+            //    gravity);
+
+            var shellCon = ObjPool.Instance.getObj("Shell").GetComponent<ShellCon>();
+            shellCon.shellInit(shellPoint.position,
+                new Vector3(cirDMSP.transform.position.x, transform.position.y, cirDMSP.transform.position.z),
+                baseVelocity * Mathf.Cos(deg * Mathf.Deg2Rad),
                 gravity);
+            shellCon.startMove();
+
+
+            //旋转锁定
+            roState = MortarRoState.Lock;//设置锁定状态
+            nlTime = 0f;
 
             //声效
 
@@ -176,14 +267,7 @@ public class MortarCon : MonoBehaviour
 
         }
 
-        if(!isLoad) { //装填冷却
-            nlodtime += Time.deltaTime;
-            if (nlodtime >= loadTime) {
-                isLoad = true;
-                cirDMRend.material.SetColor("_Color", hasbeenLoad);
-                cirDMRend.material.SetFloat("load", 1);
-            }else cirDMRend.material.SetFloat("load", nlodtime/loadTime);
-        }
+        
     }
 
 
