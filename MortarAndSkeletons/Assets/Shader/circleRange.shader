@@ -1,13 +1,12 @@
 // Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
 
-Shader "Demo/circleRange"
+Shader "Custom/circleRange"
 {
     Properties
     {
        [PerRendererData] _MainTex("Sprite Texture", 2D) = "white" {}    //   当前的Sprite图（添加[PerRendererData]后在属性面板中不可见） 
        _Color("_Color", Color) = (0,0,0,1)
-       maxRange("maxRange",Float) = 10
-       minRange("minRange",Float) = 5
+       uvRange("uvRange",Float) = 0.25
     }
         SubShader
        {
@@ -36,8 +35,7 @@ Shader "Demo/circleRange"
 
                  sampler2D _MainTex;
                  float4 _Color;
-                 float maxRange;
-                 float minRange;
+                 float uvRange;
 
                  struct Vertex
                  {
@@ -64,10 +62,9 @@ Shader "Demo/circleRange"
                  float4 frag(Fragment IN) : COLOR
                  {
                      //discard计算
-                     float dis = (minRange / maxRange)/2;
                      float uvx = abs(IN.uv_MainTex.x - 0.5f);
                      float uvy = abs(IN.uv_MainTex.y - 0.5f);
-                     if (uvx * uvx + uvy*uvy < dis * dis) discard;
+                     if (uvx*uvx + uvy*uvy < uvRange) discard;
 
 
                      //正常的纹理采样，叠加_Color颜色    

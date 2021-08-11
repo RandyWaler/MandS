@@ -19,6 +19,7 @@ public class MortarCon : MonoBehaviour
     GameObject cirDMSP;
 
     SpriteRenderer cirRGRend;
+    SpriteRenderer cirDMRend;
 
     bool rangeVis = false;//是否开启范围查看
 
@@ -32,8 +33,30 @@ public class MortarCon : MonoBehaviour
     float rcz;
     float lcx;
     float lcz;
-    float rcdis2;//未开方距离
+    float rcdis;//距离
     Vector2 rcnormal;
+
+    //炮弹发射相关
+
+    public float gravity = 9.8f;//重力加速度
+    public float loadTime = 3.0f;//装填时间
+    public Color hasbeenLoad;
+    public Color notload;
+
+
+
+    float nlodtime;//当前装填时间
+    Transform shellPoint; //炮弹位置
+    public GameObject shell;//炮弹
+
+    float baseVelocity;//初速度
+    float bv2;
+    float deg;
+
+    Transform cannon;//炮管 --- 设置角度
+
+    bool isLoad = true;//炮弹是否已装填
+
 
     private void Awake()
     {
@@ -43,12 +66,14 @@ public class MortarCon : MonoBehaviour
 
         cirRGRend = cirRGSP.GetComponent<SpriteRenderer>();
 
-        cirRGRend.material.SetFloat("maxRange", maxRange); //shader中计算因为是比值 无所谓换算
-        cirRGRend.material.SetFloat("minRange", minRange);
+        cirRGRend.material.SetFloat("uvRange", Mathf.Pow((minRange/maxRange)/2.0f,2)); //
 
         //设置伤害范围圈Sprite
 
         cirDMSP.transform.localScale = new Vector3(dmRange * 0.2f, dmRange * 0.2f, 1);
+
+        cirDMRend = cirDMSP.GetComponent<SpriteRenderer>();
+        cirDMRend.material.SetColor("_Color", hasbeenLoad);
 
         cirRGSP.SetActive(false);
         cirDMSP.SetActive(false);
@@ -57,6 +82,15 @@ public class MortarCon : MonoBehaviour
         maxR2 = maxRange * maxRange;
         minR2 = minRange * minRange;
         layerMask = 1<<LayerMask.NameToLayer("mcollider");
+
+        //炮弹发射相关
+        cannon = transform.GetChild(0);
+        shellPoint = cannon.GetChild(0);
+        baseVelocity = Mathf.Sqrt(gravity * maxRange);
+        bv2 = baseVelocity * baseVelocity;
+
+        shell.SetActive(false);
+
     }
 
     
@@ -81,35 +115,74 @@ public class MortarCon : MonoBehaviour
                 lcx = rcx - transform.position.x;
                 lcz = rcz - transform.position.z;
 
-                rcdis2 = lcx*lcx+lcz*lcz;
+                rcdis = lcx*lcx+lcz*lcz;
 
-                if (rcdis2>maxR2)//夹取到最大范围
+                if (rcdis > maxR2)//夹取到最大范围
                 {
                     rcnormal = new Vector2(lcx, lcz).normalized;
                     rcx = maxRange * rcnormal.x + transform.position.x;
                     rcz = maxRange * rcnormal.y + transform.position.z;
+                    rcdis = maxRange;
 
-                }else if(rcdis2<minR2)
+                }
+                else if (rcdis < minR2)
                 {
                     rcnormal = new Vector2(lcx, lcz).normalized;
                     rcx = minRange * rcnormal.x + transform.position.x;
                     rcz = minRange * rcnormal.y + transform.position.z;
+                    rcdis = minRange;
                 }
-                
-
-                //设置 dmRange 位置
-                cirDMSP.transform.position = new Vector3(rcx, cirDMSP.transform.position.y, rcz);
-
+                else rcdis = Mathf.Sqrt(rcdis);
 
                 //设置迫击炮朝向&角度
 
                 gameObject.transform.LookAt(new Vector3(rcx, gameObject.transform.position.y, rcz), Vector3.up);
+                deg = Mathf.Asin(rcdis * gravity / bv2)*Mathf.Rad2Deg / 2.0f;
+                cannon.eulerAngles = new Vector3(cannon.eulerAngles.x, cannon.eulerAngles.y, deg);
+
+                
+
+                //设置 dmRange worldPositon Rotate
+                cirDMSP.transform.position = new Vector3(rcx, cirDMSP.transform.position.y, rcz);
+                cirDMSP.transform.eulerAngles = new Vector3(90, 0, 0);
 
             }
+        }
 
 
+        if(Input.GetMouseButtonDown(0)&&rangeVis&&isLoad)
+        {
+            //发射炮弹
+            var shellCon = Instantiate(shell).GetComponent<ShellCon>();
+            shellCon.gameObject.SetActive(true);
+            shellCon.shellInit(shellPoint.position, 
+                new Vector3(cirDMSP.transform.position.x,transform.position.y, cirDMSP.transform.position.z), 
+                baseVelocity * Mathf.Cos(deg * Mathf.Deg2Rad), 
+                gravity);
 
+            //声效
 
+            AudioCon.Instance.playClip("launch");
+
+            //冷却
+            rangeVis = false;
+            cirRGSP.SetActive(false);
+            cirDMSP.SetActive(false);
+            isLoad = false;
+            nlodtime = 0;
+
+            cirDMRend.material.SetColor("_Color", notload);
+            cirDMRend.material.SetFloat("load", 0);
+
+        }
+
+        if(!isLoad) { //装填冷却
+            nlodtime += Time.deltaTime;
+            if (nlodtime >= loadTime) {
+                isLoad = true;
+                cirDMRend.material.SetColor("_Color", hasbeenLoad);
+                cirDMRend.material.SetFloat("load", 1);
+            }else cirDMRend.material.SetFloat("load", nlodtime/loadTime);
         }
     }
 
