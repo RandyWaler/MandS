@@ -720,6 +720,10 @@ PrefabInstance:
       propertyPath: roSpeed
       value: 0.8
       objectReference: {fileID: 0}
+    - target: {fileID: 8852826547166565892, guid: 97c43ff21e5d108479e924234196741b, type: 3}
+      propertyPath: m_Time
+      value: 0.3
+      objectReference: {fileID: 0}
     - target: {fileID: 9175230975934824585, guid: 97c43ff21e5d108479e924234196741b, type: 3}
       propertyPath: m_RootOrder
       value: 1
@@ -734,7 +738,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9175230975934824585, guid: 97c43ff21e5d108479e924234196741b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -7.46
+      value: -1.33
       objectReference: {fileID: 0}
     - target: {fileID: 9175230975934824585, guid: 97c43ff21e5d108479e924234196741b, type: 3}
       propertyPath: m_LocalRotation.w
