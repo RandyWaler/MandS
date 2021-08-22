@@ -22,7 +22,9 @@ public class ObjPool:MonoBehaviour{
     {
 		if (!Instance) Instance = this;
 		else if (Instance != this) Destroy(gameObject);
-    }
+		
+
+	}
 
     private void Start()
 	{
