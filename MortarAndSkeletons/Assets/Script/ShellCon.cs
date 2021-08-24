@@ -46,6 +46,11 @@ public class ShellCon : MonoBehaviour,PoolObj
 
     TrailRenderer trailRenderer;
 
+    //…À∫¶∑∂Œß
+    public float dmgRange;
+
+    //ObjPool
+
     ObjPool belongPool;
     public ObjPool BelongPool { get { return belongPool; } set { belongPool = value; } }
 
@@ -85,6 +90,10 @@ public class ShellCon : MonoBehaviour,PoolObj
 
                     //“Ù–ß
                     AudioCon.Instance.playClip("hit");
+
+                    //≈–∂®ª˜÷–
+
+                    SktCreater.Instance.checkBreak(tarPos, dmgRange);
 
                 }
                 else

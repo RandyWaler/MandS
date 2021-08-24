@@ -20,9 +20,8 @@ public class ObjPool:MonoBehaviour{
 
     private void Awake()
     {
-		if (!Instance) Instance = this;
-		else if (Instance != this) Destroy(gameObject);
-		
+		if (!Instance) Instance = this; //这里不考虑Awake竞速 Awake阶段不应进行通信
+		else if (Instance != this) Destroy(gameObject); //针对重复进入场景，DontDestroyOnLoad，保唯一自毁
 
 	}
 

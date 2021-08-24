@@ -244,6 +244,7 @@ public class MortarCon : MonoBehaviour
                 new Vector3(cirDMSP.transform.position.x, transform.position.y, cirDMSP.transform.position.z),
                 baseVelocity * Mathf.Cos(deg * Mathf.Deg2Rad),
                 gravity);
+            shellCon.dmgRange = dmRange; //这里必须每次赋值，因为对象池的存在，炮弹可能被不同的所迫击炮使用
             shellCon.startMove();
 
 
