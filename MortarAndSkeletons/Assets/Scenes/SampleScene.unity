@@ -213,7 +213,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 13713903}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -13.27, y: 2.89, z: -17.7}
+  m_LocalPosition: {x: -8.28, y: 2.89, z: -11.98}
   m_LocalScale: {x: 1, y: 3.78, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -434,9 +434,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SkeletonS: []
-  sktAim: {fileID: 0}
+  sktAim: {fileID: 13713907}
   creatTime: 2
   maxSktNum: 10
+  randRange: 40
 --- !u!1 &963194225
 GameObject:
   m_ObjectHideFlags: 0
@@ -516,8 +517,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 963194225}
-  m_LocalRotation: {x: -0.46388265, y: -0.12624969, z: 0.06697793, w: -0.8742928}
-  m_LocalPosition: {x: -7.653715, y: 30.96399, z: -31.171232}
+  m_LocalRotation: {x: -0.47409886, y: -0.11117896, z: 0.060486164, w: -0.8713271}
+  m_LocalPosition: {x: -5.937384, y: 28.335953, z: -24.995968}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -981,6 +982,14 @@ PrefabInstance:
       propertyPath: circleSP
       value: 
       objectReference: {fileID: 1912539098}
+    - target: {fileID: 2050461432, guid: 0332474ba00ea654d9c984d134cd4513, type: 3}
+      propertyPath: maxRange
+      value: 25
+      objectReference: {fileID: 0}
+    - target: {fileID: 2050461432, guid: 0332474ba00ea654d9c984d134cd4513, type: 3}
+      propertyPath: minRange
+      value: 8
+      objectReference: {fileID: 0}
     - target: {fileID: 358324428376992161, guid: 0332474ba00ea654d9c984d134cd4513, type: 3}
       propertyPath: m_Name
       value: RGCircle

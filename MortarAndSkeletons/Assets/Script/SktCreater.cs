@@ -13,7 +13,7 @@ public class SktCreater : MonoBehaviour
 
     public float creatTime = 2.0f;//生成间隔
     public int maxSktNum = 10;//场景中最大骷髅兵数量
-    public float randRange = 50.0f;//生成随机圈大小
+    public float randRange = 40.0f;//生成随机圈大小
     float ncTime = 0;
 
     List<SktCon> onbreakSktS;
@@ -39,9 +39,12 @@ public class SktCreater : MonoBehaviour
                 SktCon sCon = ObjPool.Instance.getObj("Skeleton").GetComponent<SktCon>();
 
                 sCon.aim = sktAim;
-                npos = Random.insideUnitCircle * randRange;
+                npos = Random.insideUnitCircle.normalized * randRange;
                 sCon.transform.position = new Vector3(npos.x, 0, npos.y);
+                sCon.gameObject.SetActive(true);
                 sCon.startMove();
+
+                SkeletonS.Add(sCon);
             }
         }
     }

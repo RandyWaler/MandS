@@ -93,7 +93,7 @@ public class ShellCon : MonoBehaviour,PoolObj
 
                     //ÅÐ¶¨»÷ÖÐ
 
-                    SktCreater.Instance.checkBreak(tarPos, dmgRange);
+                    SktCreater.Instance.checkBreak(tarPos, dmgRange*dmgRange);
 
                 }
                 else
