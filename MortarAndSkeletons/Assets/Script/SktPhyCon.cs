@@ -13,7 +13,10 @@ public class SktPhyCon : MonoBehaviour,PoolObj
     int rypHash = Animator.StringToHash("rypos");
     int brHash = Animator.StringToHash("Break");
 
-    Animator animator;
+    int idleHash = Animator.StringToHash("Idle");
+
+    [HideInInspector]
+    public Animator animator;
 
     Vector2[] roDirVec = { new Vector2(0, 1),new Vector2(0,-1),new Vector2(-1,0),new Vector2(1,0),
         new Vector2(0.7071f,0.7071f),new Vector2(-0.7071f,0.7071f),new Vector2(0.7071f,-0.7071f),new Vector2(-0.7071f,-0.7071f) };
@@ -140,6 +143,7 @@ public class SktPhyCon : MonoBehaviour,PoolObj
     public void reSetObj()
     {
         setShader = false;
+        ondisp = false;
         bodyMat.shader = Shader.Find("Legacy Shaders/Diffuse");
         daggerMat.shader = Shader.Find("Legacy Shaders/Diffuse");
         bodyMat.color = new Color(bodyMat.color.r, bodyMat.color.g, bodyMat.color.b, 1.0f);
@@ -156,8 +160,7 @@ public class SktPhyCon : MonoBehaviour,PoolObj
 
     public void hangUp()
     {
-        ondisp = false;
-        animator.SetBool(brHash, false);
+        animator.Play(idleHash,0);//这里必须趁对象active false之前设置animator状态
         gameObject.SetActive(false);
         belongPool?.backtoPool(this);
     }

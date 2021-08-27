@@ -70,9 +70,14 @@ public class SktCon : MonoBehaviour,PoolObj
         phyCon.transform.position = transform.position;
         phyCon.transform.rotation = transform.rotation;
 
+        
+
         phyCon.gameObject.SetActive(true);
+
         phyCon.setBreakDir(trans.position);
+        phyCon.animator.Play(animator.GetCurrentAnimatorStateInfo(0).shortNameHash);
         phyCon.startMove();
+
 
 
         //¹ÒÆð
@@ -88,6 +93,7 @@ public class SktCon : MonoBehaviour,PoolObj
 
         phyCon.gameObject.SetActive(true);
         phyCon.setBreakDir(pos);
+        phyCon.animator.Play(animator.GetCurrentAnimatorStateInfo(0).shortNameHash);
         phyCon.startMove();
 
 
