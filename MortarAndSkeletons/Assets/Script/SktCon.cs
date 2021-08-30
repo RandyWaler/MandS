@@ -145,6 +145,6 @@ public class SktCon : MonoBehaviour,PoolObj
     {
         SktCreater.Instance.SkeletonS.Remove(this);
         gameObject.SetActive(false);
-        belongPool?.backtoPool(this);
+        belongPool?.backtoPool(this);//返回对象池中
     }
 }
