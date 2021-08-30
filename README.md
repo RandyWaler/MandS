@@ -32,7 +32,7 @@
 <br />
 
 
-## 针对项目 MortarandSkeletons 迫击炮与骷髅兵
+## 针对项目 MortarAndSkeletons 迫击炮与骷髅兵
 
 #### 项目中的迫击炮和骷髅兵角色形象，借鉴自腾讯Tencent旗下的，原芬兰移动游戏公司Supercell出品的，《部落冲突:全面开战》《部落冲突:皇室战争》中
 
