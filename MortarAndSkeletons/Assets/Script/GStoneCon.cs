@@ -9,61 +9,177 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
     int openHash = Animator.StringToHash("open");
     Animator animator;
 
-    bool candrag = true;//能否拖拽，边缘位置可能鼠标没有击中地面但Enter进来此时不能拖动 --- 刚刚完成拖动Update没有置好位置&方位不能拖动
-    bool hvdrag = false;//是否被拖拽了，为true MouseEixt不会Anim Open并交由Update处理
+    RaycastHit raycast;//射线检测
+    int layerMask;
+
+
+    Transform roChild;//子旋转节点
+
+    public Transform lookTrans;//注视目标
+    public float outRange = 20.0f;//保持在注视目标多少范围外
+    float outR2;//乘方
+    public float moveSpeed=15.0f;//移动速度
+    public float roSpeed = 120f;//旋转注视速度
+
+    Vector3 odir;//向注视目标反方向移动的单位向量 Awake EndDrag 会设置一次
+
+    bool candrag = false;//能否拖拽，IBeginDragHandler & IDragHandler设置，却决于射线检测是否击中地面，在被置true时将设置碰撞点与物体位置的差量
+    bool hvdrag = true;//是否被拖拽了，IEndDragHandler置true Update中调整位置&方位符合要求
+    bool enter = false;//鼠标Enter/Exit，被用于在拖拽后，Update将位置&方位置为符合要求时，设置openHash
+    bool isdrag = false;//当前这一次的Drag是否有效，是否不因为hvdrag --- Update正在设置位置&方位 而被阻止
 
     Vector3 deltaVec;//初始射线击中位置与gameObjec位置的差量(保证拖动的平滑，起步不跳位)
+    Vector3 udVec;//应用差量，初始差量会在Drag中逐渐被消除
+    Vector3 rayHitVec;//射线击中的位置(已映射到物体transform.y)，用于Update中表现拖拽效果
 
-    RaycastHit raycast;
-    int layerMask;
+    public float maxDeltaDis = 0.3f;//最大容许差量距(小于容许差量将置0)
+    public float moveDeltaSpeed = 100.0f;//移动补掉差量的速度
+    float md2;//乘方
+
+
+    //temple 变量
+
+
+    Vector3 lookVec;
+
+    float deltaAngle;
+    float deltaDis;
     
 
     //Mono
     private void Awake()
     {
-        animator = gameObject.GetComponent<Animator>();
+        roChild = transform.GetChild(0);
+        animator = roChild.GetComponent<Animator>();
         layerMask = 1 << LayerMask.NameToLayer("mcollider");
+
+        odir = new Vector3(transform.position.x - lookTrans.position.x, 0, transform.position.z - lookTrans.position.z);
+        odir = odir.normalized;
+        
+        outR2 = outRange * outRange;
+        md2 = maxDeltaDis * maxDeltaDis;
+        
+    }
+
+    private void Update()
+    {
+        if(hvdrag&&lookTrans) //需要调整位置&方位
+        {
+            lookVec = new Vector3(lookTrans.position.x - transform.position.x, 0, lookTrans.position.z - transform.position.z);
+            deltaAngle = Vector3.Angle(roChild.forward, lookVec);
+            if (deltaAngle >= 1.0f)
+            {
+                roChild.rotation = Quaternion.RotateTowards(roChild.rotation,
+                    Quaternion.LookRotation(lookVec, Vector3.up), roSpeed * Time.deltaTime);
+            }
+            else roChild.LookAt(new Vector3(lookTrans.position.x,transform.position.y,lookTrans.position.z),Vector3.up);
+
+
+            deltaDis = lookVec.x * lookVec.x + lookVec.z * lookVec.z;
+            if(deltaDis<=outR2)
+            {
+                transform.Translate(odir * moveSpeed * Time.deltaTime);
+            }
+
+
+            if (deltaDis >= outR2 && deltaAngle < 1.0f)
+            {
+                hvdrag = false;
+                animator.SetBool(openHash, !enter);
+            }
+
+        }
+
+
+        if(isdrag&&candrag) //这里Drag中位置的设置委托给Update，而不是onDrag，一些从地面外回到地面，但只拖动几帧的情况，物体可能停在差量较大的位置
+        {
+            lookVec = new Vector3(transform.position.x - rayHitVec.x, 0, transform.position.z - rayHitVec.z); //盗用
+            deltaDis = lookVec.x * lookVec.x + lookVec.z * lookVec.z;
+
+            if (deltaDis <= md2) transform.position = rayHitVec;
+            else //需要补齐差量
+            {
+                deltaDis = Mathf.Sqrt(deltaDis);
+                deltaDis -= moveDeltaSpeed * Time.deltaTime;
+                lookVec = lookVec.normalized;
+                lookVec *= deltaDis;
+
+                transform.position = rayHitVec + lookVec;
+
+
+            }
+
+        }
     }
 
     //Evnet接口
 
     public void OnPointerEnter(PointerEventData eventData)
     {
-        if(candrag) animator.SetBool(openHash, false);//能拖拽才给予反馈
+        enter = true;
+        if ((!candrag) && (!hvdrag) && (!isdrag)) animator.SetBool(openHash, false);//能拖拽才给予反馈
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
-        if (!hvdrag) animator.SetBool(openHash, true);
+        
+        enter = false;
+        if ((!candrag)&&(!hvdrag)&&(!isdrag))
+        {
+            Debug.Log("onExit");
+            Debug.Log("canDrag:" + candrag);
+            Debug.Log("hvDrag:" + hvdrag);
+            animator.SetBool(openHash, true);
+        }
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        if (!candrag) return;
+        Debug.Log("OnBeginDrag");
+        
+        if (hvdrag) return; //已经拖拽过，Updae没有设置好位置方位，不能拖拽
+        isdrag = true; //拖拽有效
+        animator.SetBool(openHash, false);//应对边缘，从角位拖拽，Exit先于OnBeginDrag触发
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycast, float.MaxValue, layerMask))
         {
             candrag = true;
-            hvdrag = true;
             deltaVec = transform.position - raycast.point;
-
-
+            udVec = deltaVec;
         }
         else candrag = false;
 
     }
     public void OnDrag(PointerEventData eventData)
     {
-        if (!candrag) return;
 
+        
+        if (hvdrag||!isdrag) return;
+        //Debug.Log("OnDrag");
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycast, float.MaxValue, layerMask))
         {
-            transform.position = new Vector3(raycast.point.x + deltaVec.x, transform.position.y, raycast.point.z + deltaVec.z);
+            if (!candrag) //边缘位置移回，从onDrag的某一刻正式开启拖拽
+            {
+                candrag = true;
+                deltaVec = transform.position - raycast.point;
+                udVec = deltaVec;
+            }
+            rayHitVec = new Vector3(raycast.point.x, transform.position.y, raycast.point.z);
+            
         }
+        else candrag = false;//拖出去再回来，需要重算差量
 
     }
 
     public void OnEndDrag(PointerEventData eventData)
     {
-        candrag = false;//需要等待Update设置位置&方位
+        isdrag = false;
+
+
+        Debug.Log("OnEndDrag");
+        hvdrag = true;
+        candrag = false;
+        odir = new Vector3(transform.position.x - lookTrans.position.x, 0, transform.position.z - lookTrans.position.z);
+        odir = odir.normalized;
+        
     }
 }
