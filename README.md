@@ -34,7 +34,7 @@
 
 ## 针对项目 MortarAndSkeletons 迫击炮与骷髅兵
 
-#### 项目中的迫击炮和骷髅兵角色形象，借鉴自腾讯Tencent旗下的，原芬兰移动游戏公司Supercell出品的，《部落冲突:全面开战》《部落冲突:皇室战争》中
+#### 项目中的迫击炮、骷髅兵、骷髅墓碑角色形象，借鉴自腾讯Tencent旗下的，原芬兰移动游戏公司Supercell出品的，《部落冲突:全面开战》《部落冲突:皇室战争》中
 
 ![](https://raw.githubusercontent.com/RandyWaler/PicRes/main/CR_Skeleton.jpg)
 
@@ -59,11 +59,15 @@
 ![](https://raw.githubusercontent.com/RandyWaler/PicRes/main/MandS_SktPhy.png)
 ![](https://raw.githubusercontent.com/RandyWaler/PicRes/main/MandS_Run.png)
 
+<br />
+
+#####  一个拥有漫反射贴图的骷髅墓碑模型资源及开关动画（包括 3dsMax 原工程 和 FBX）
+
+![](https://raw.githubusercontent.com/RandyWaler/PicRes/main/GraveStone1.png)
 
 <br />
 
 #####  Unity工程/demo中，包含操作迫击炮在指定范围发设炮弹，以及炮弹命中骷髅兵后执行BlendTree混合得到的程序化散架效果
-（鼠标右键打开发射范围控制，左键发射炮弹）
 
 ![](https://raw.githubusercontent.com/RandyWaler/PicRes/main/MandS_Work.png)
 
