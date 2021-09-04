@@ -82,6 +82,11 @@ public class MortarCon : MonoBehaviour
 
     public static MortarCon Instance=null;
 
+
+    bool firstShoot = false;//是否发射过 --- 决定提示标签是否需要出现
+    float txtTime = 3.0f;//没有发射过多长时间出现提示
+
+
     private void Awake()
     {
         if (!Instance) Instance = this;//这里不考虑Awake竞速 Awake阶段不应进行通信
@@ -127,13 +132,33 @@ public class MortarCon : MonoBehaviour
 
     private void Update()
     {
+        if(!firstShoot&&!rangeVis)
+        {
+            if (!Text3DCon.Instance.meshRenderer.enabled)//没有被启用
+            {
+                if (txtTime > 0) txtTime -= Time.deltaTime;
+                else Text3DCon.Instance.setTxt(gameObject.transform.position, "Right-Click",8);
+            }
+            else txtTime = 3.0f;
+        }
+
+
         if(Input.GetMouseButtonDown(1)&&!GSSquare.Instance.sprite.enabled) //摁下右键且不在拖拽，可以开启范围显示
         {
             rangeVis = !rangeVis;
             cirRGSP.SetActive(rangeVis);
             cirDMSP.SetActive(rangeVis);
 
-            if(!rangeVis&&roState==MortarRoState.Catch) roState = MortarRoState.onRotate; //当范围不可见时，若已捕捉，转为旋转
+
+            if (!firstShoot)
+            {
+                if (rangeVis)
+                {
+                    Text3DCon.Instance.setTxt(gameObject.transform.position, "Left-Click-Shoot", 8);
+                }
+                else Text3DCon.Instance.disVisable();
+            }
+            if (!rangeVis&&roState==MortarRoState.Catch) roState = MortarRoState.onRotate; //当范围不可见时，若已捕捉，转为旋转
         }
 
         if(roState == MortarRoState.Lock)
@@ -224,6 +249,11 @@ public class MortarCon : MonoBehaviour
 
         if(Input.GetMouseButtonDown(0)&&rangeVis&&isLoad)
         {
+            if(!firstShoot)
+            {
+                firstShoot = true;
+                Text3DCon.Instance.disVisable();
+            }
 
             //对齐朝向  ---  可能在开启Range后立刻发射，还未完成跟踪
 

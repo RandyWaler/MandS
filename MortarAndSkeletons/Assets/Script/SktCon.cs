@@ -2,9 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
 public class SktCon : MonoBehaviour,PoolObj
 {
-    public Transform aim;//目标位置
+    public Vector3 aim = new Vector3(-5000,0,-50000);//目标位置
 
     public float standRange = 2.0f;//距离目标多近时，无需再奔跑移动，可以停下
     float sr2;
@@ -34,18 +35,17 @@ public class SktCon : MonoBehaviour,PoolObj
     {
         stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        dtx = aim.position.x - transform.position.x;
-        dtz = aim.position.z - transform.position.z;
+        dtx = aim.x - transform.position.x;
+        dtz = aim.z - transform.position.z;
 
         if (stateInfo.shortNameHash == runHash )
         {
-            if (aim)
-            {
+
                 //旋转跟随到目标位置
-                roStep = roSpeed * Time.deltaTime;
-                lookRo = Quaternion.LookRotation(new Vector3(dtx, 0, dtz), Vector3.up);
-                gameObject.transform.rotation = Quaternion.RotateTowards(gameObject.transform.rotation, lookRo, roStep);
-            }
+            roStep = roSpeed * Time.deltaTime;
+            lookRo = Quaternion.LookRotation(new Vector3(dtx, 0, dtz), Vector3.up);
+            gameObject.transform.rotation = Quaternion.RotateTowards(gameObject.transform.rotation, lookRo, roStep);
+            
 
             if (dtx * dtx + dtz * dtz <= sr2)
             {
@@ -77,8 +77,6 @@ public class SktCon : MonoBehaviour,PoolObj
         phyCon.setBreakDir(trans.position);
         phyCon.animator.Play(animator.GetCurrentAnimatorStateInfo(0).shortNameHash);
         phyCon.startMove();
-
-
 
         //挂起
         hangUp();
@@ -118,15 +116,15 @@ public class SktCon : MonoBehaviour,PoolObj
 
     public void startMove()
     {
-        if (!aim)
+        if (aim.x<-4900&&aim.z<-4900)
         {
             animator.SetBool(runHash, false);
             animator.Play(idleHash);
         }
         else
         {
-            dtx = aim.position.x - transform.position.x;
-            dtz = aim.position.z - transform.position.z;
+            dtx = aim.x - transform.position.x;
+            dtz = aim.z - transform.position.z;
 
             if (dtx * dtx + dtz * dtz <= sr2)
             {

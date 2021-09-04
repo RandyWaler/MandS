@@ -43,6 +43,8 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
 
     float deltaAngle;
     float deltaDis;
+
+    static bool firstDrag = false;
     
 
     //Mono
@@ -115,14 +117,19 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
     public void OnPointerEnter(PointerEventData eventData)
     {
         enter = true;
-        if ((!candrag) && (!hvdrag) && (!isdrag)) animator.SetBool(openHash, false);//能拖拽才给予反馈
+        if ((!candrag) && (!hvdrag) && (!isdrag)&& !MortarCon.Instance.rangeVis)
+        {
+            animator.SetBool(openHash, false);//能拖拽才给予反馈
+            if (!firstDrag) Text3DCon.Instance.setTxt(transform.position, "Drag");
+        }
     }
 
     public void OnPointerExit(PointerEventData eventData)
     {
         
         enter = false;
-        if ((!candrag)&&(!hvdrag)&&(!isdrag)) animator.SetBool(openHash, true);
+        if (!firstDrag&&!MortarCon.Instance.rangeVis) Text3DCon.Instance.disVisable();
+        if ((!candrag) && (!hvdrag) && (!isdrag)) animator.SetBool(openHash, true);
     }
 
     public void OnBeginDrag(PointerEventData eventData)
@@ -134,6 +141,11 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
         animator.SetBool(openHash, false);//应对边缘，从角位拖拽，Exit先于OnBeginDrag触发
         GSSquare.Instance.sprite.enabled = true;
         GSSquare.Instance.gStones.Remove(this);
+        if(!firstDrag)
+        {
+            firstDrag = true;
+            if(Text3DCon.Instance.txtMesh.text=="Drag") Text3DCon.Instance.disVisable();
+        }
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycast, float.MaxValue, layerMask))
         {
             candrag = true;

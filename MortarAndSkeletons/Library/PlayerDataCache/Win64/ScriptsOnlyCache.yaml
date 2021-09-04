@@ -3,20 +3,30 @@ ScriptsOnlyBuild:
     Assembly-CSharp.dll:
     - AudioCon
     - Bullute
+    - GSSquare
+    - GStoneCon
     - MortarCon
     - ObjPool
     - ShellCon
     - SktCon
     - SktCreater
     - SktPhyCon
+    - Text3DCon
     Unity.Rider.Editor.dll:
     - Packages.Rider.Editor.UnitTesting.CallbackData
+    UnityEditor.Graphs.dll:
+    - UnityEditor.Graphs.AnimationBlendTree.Graph
+    - UnityEditor.Graphs.AnimationBlendTree.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.Graph
+    - UnityEditor.Graphs.AnimationStateMachine.GraphGUI
+    - UnityEditor.Graphs.AnimatorControllerTool
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
     - UnityEditor.TestTools.TestRunner.TestListCacheData
     - UnityEditor.TestTools.TestRunner.TestRun.TestJobDataHolder
     UnityEngine.UI.dll:
     - UnityEngine.EventSystems.EventSystem
+    - UnityEngine.EventSystems.PhysicsRaycaster
     - UnityEngine.EventSystems.StandaloneInputModule
   sceneClasses:
     Assets/Scenes/SampleScene.unity:
@@ -60,31 +70,43 @@ ScriptsOnlyBuild:
       Script: {instanceID: 0}
     - Class: 96
       Script: {instanceID: 0}
+    - Class: 102
+      Script: {instanceID: 0}
     - Class: 104
       Script: {instanceID: 0}
     - Class: 108
       Script: {instanceID: 0}
     - Class: 114
-      Script: {instanceID: 1466}
+      Script: {instanceID: 1470}
     - Class: 114
-      Script: {instanceID: 1496}
+      Script: {instanceID: 1500}
     - Class: 114
-      Script: {instanceID: 1824}
+      Script: {instanceID: 1538}
     - Class: 114
-      Script: {instanceID: 1918}
+      Script: {instanceID: 1830}
     - Class: 114
-      Script: {instanceID: 2334}
+      Script: {instanceID: 1924}
     - Class: 114
-      Script: {instanceID: 2656}
+      Script: {instanceID: 2340}
     - Class: 114
-      Script: {instanceID: 2676}
+      Script: {instanceID: 2662}
     - Class: 114
-      Script: {instanceID: 2782}
+      Script: {instanceID: 2682}
     - Class: 114
-      Script: {instanceID: 3750}
+      Script: {instanceID: 2788}
     - Class: 114
-      Script: {instanceID: 4020}
+      Script: {instanceID: 3350}
+    - Class: 114
+      Script: {instanceID: 3550}
+    - Class: 114
+      Script: {instanceID: 3758}
+    - Class: 114
+      Script: {instanceID: 3836}
+    - Class: 114
+      Script: {instanceID: 4030}
     - Class: 115
+      Script: {instanceID: 0}
+    - Class: 128
       Script: {instanceID: 0}
     - Class: 135
       Script: {instanceID: 0}
@@ -131,6 +153,12 @@ ScriptsOnlyBuild:
     assemblyName: Unity.TextMeshPro.dll
     namespaceName: TMPro
     className: TMP_InputField
+  - hash:
+      serializedVersion: 2
+      Hash: 7e7d0365d47f88ce5aab79ea582ffa49
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: GSSquare
   - hash:
       serializedVersion: 2
       Hash: 71bb6a6b6c8f052f948db64c7dd3ca4f
@@ -199,7 +227,7 @@ ScriptsOnlyBuild:
     className: GroupTrack
   - hash:
       serializedVersion: 2
-      Hash: 68d64a9702598a61302da0e23ba82c36
+      Hash: c0d4d13961f2b32fe8f5e0d9505d5c4f
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: SktCreater
@@ -331,7 +359,7 @@ ScriptsOnlyBuild:
     className: TMP_SubMesh
   - hash:
       serializedVersion: 2
-      Hash: 86b27da12464d90745adb45c5ef62166
+      Hash: 2568646153d0ec1d39c7ed91566d7278
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: SktCon
@@ -481,6 +509,12 @@ ScriptsOnlyBuild:
     className: SignalTrack
   - hash:
       serializedVersion: 2
+      Hash: 2b6473f370dfcf5650f37cd72b5ede7e
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: Text3DCon
+  - hash:
+      serializedVersion: 2
       Hash: aba7b2852ef61d175dd9602e7723d5e5
     assemblyName: UnityEngine.UI.dll
     namespaceName: UnityEngine.UI
@@ -541,10 +575,16 @@ ScriptsOnlyBuild:
     className: TMP_SubMeshUI
   - hash:
       serializedVersion: 2
-      Hash: 01e2a84992f6f9828b792941f9606ffb
+      Hash: 14ae094d0d69c1cca1d7fa5f92602e91
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: MortarCon
+  - hash:
+      serializedVersion: 2
+      Hash: 88236bb2b1d3267a7a14fce13c006091
+    assemblyName: Assembly-CSharp.dll
+    namespaceName: 
+    className: GStoneCon
   - hash:
       serializedVersion: 2
       Hash: fd68d84f33fad85aac38f2739c0ee270

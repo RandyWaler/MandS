@@ -26,7 +26,14 @@ public class SktCreater : MonoBehaviour
     }
 
 
-    Vector2 npos;
+    Vector3 gspos;//墓碑的位置
+    Vector3 morpos;//迫击炮的位置
+    Vector2 npos;//迫击炮---》模板的单位向量
+    Vector3 tarpos;//骷髅兵的目标位置
+
+    int roAngle;
+    float cosra;
+    float sinra;
     private void Update()
     {
         if(SkeletonS.Count<maxSktNum)
@@ -36,10 +43,27 @@ public class SktCreater : MonoBehaviour
             {
                 ncTime = 0;
                 SktCon sCon = ObjPool.Instance.getObj("Skeleton").GetComponent<SktCon>();
-                sCon.aim = MortarCon.Instance.transform;
 
-                Debug.Log(GSSquare.Instance.gStones.Count);
-                sCon.transform.position = GSSquare.Instance.gStones[Random.Range(0, GSSquare.Instance.gStones.Count)].transform.position;
+                gspos = GSSquare.Instance.gStones[Random.Range(0, GSSquare.Instance.gStones.Count)].transform.position;
+                morpos = MortarCon.Instance.transform.position;
+
+                //随机180度圆域内的一个目标点
+                npos = new Vector2(gspos.x - morpos.x, gspos.z - morpos.z).normalized;
+
+                roAngle = Random.Range(-90, 91);
+                cosra = Mathf.Cos(roAngle * Mathf.Deg2Rad);
+                sinra = Mathf.Sin(roAngle * Mathf.Deg2Rad);
+
+                tarpos = new Vector3(npos.x * cosra + npos.y * sinra, 0, npos.x * (-sinra) + npos.y * cosra); //通过绕Y轴的旋转矩阵，将单位向量旋转[-90,90]度
+
+                tarpos *= Random.Range(MortarCon.Instance.minRange + 2, MortarCon.Instance.maxRange - 1);
+
+
+                sCon.aim = tarpos;
+
+
+                //设置位置，旋向，启动
+                sCon.transform.position = gspos;
                 sCon.transform.eulerAngles = new Vector3(0, Random.Range(0, 360), 0);
                 sCon.gameObject.SetActive(true);
                 sCon.startMove();
