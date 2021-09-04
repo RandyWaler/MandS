@@ -9,11 +9,10 @@ public class SktCreater : MonoBehaviour
 
     public List<SktCon> SkeletonS;
 
-    public Transform sktAim;//骷髅兵的移动目标
+    //public Transform sktAim;//骷髅兵的移动目标
 
     public float creatTime = 2.0f;//生成间隔
     public int maxSktNum = 10;//场景中最大骷髅兵数量
-    public float randRange = 40.0f;//生成随机圈大小
     float ncTime = 0;
 
     List<SktCon> onbreakSktS;
@@ -37,10 +36,11 @@ public class SktCreater : MonoBehaviour
             {
                 ncTime = 0;
                 SktCon sCon = ObjPool.Instance.getObj("Skeleton").GetComponent<SktCon>();
+                sCon.aim = MortarCon.Instance.transform;
 
-                sCon.aim = sktAim;
-                npos = Random.insideUnitCircle.normalized * randRange;
-                sCon.transform.position = new Vector3(npos.x, 0, npos.y);
+                Debug.Log(GSSquare.Instance.gStones.Count);
+                sCon.transform.position = GSSquare.Instance.gStones[Random.Range(0, GSSquare.Instance.gStones.Count)].transform.position;
+                sCon.transform.eulerAngles = new Vector3(0, Random.Range(0, 360), 0);
                 sCon.gameObject.SetActive(true);
                 sCon.startMove();
 

@@ -289,8 +289,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   lookTrans: {fileID: 0}
-  outRange: 20
-  moveSpeed: 15
-  roSpeed: 180
-  maxDeltaDis: 0.3
+  outRange: 26
+  moveSpeed: 30
+  roSpeed: 270
   moveDeltaSpeed: 100

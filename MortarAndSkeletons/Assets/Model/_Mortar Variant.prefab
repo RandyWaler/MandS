@@ -176,8 +176,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 26b81e9cd3ee8e847bb84f2d390df8be, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  maxRange: 30
-  minRange: 10
+  maxRange: 25
+  minRange: 8
   dmRange: 3
   cirRGSP: {fileID: 358324428376992161}
   cirDMSP: {fileID: 4777310783677458288}

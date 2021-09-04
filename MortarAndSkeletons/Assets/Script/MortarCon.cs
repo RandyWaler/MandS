@@ -29,7 +29,8 @@ public class MortarCon : MonoBehaviour
     SpriteRenderer cirRGRend;
     SpriteRenderer cirDMRend;
 
-    bool rangeVis = false;//是否开启范围查看
+    [HideInInspector]
+    public bool rangeVis = false;//是否开启范围查看
 
 
     //碰撞检测
@@ -79,8 +80,16 @@ public class MortarCon : MonoBehaviour
     bool isLoad = true;//炮弹是否已装填
 
 
+    public static MortarCon Instance=null;
+
     private void Awake()
     {
+        if (!Instance) Instance = this;//这里不考虑Awake竞速 Awake阶段不应进行通信
+        else if(Instance!=this)
+        {
+            Destroy(gameObject);//针对重复进入场景，DontDestroyOnLoad，保唯一自毁
+            return;
+        }
 
         //设置发射范围圈Sprite
         cirRGSP.transform.localScale = new Vector3(maxRange * 0.2f,maxRange * 0.2f,1);
@@ -118,7 +127,7 @@ public class MortarCon : MonoBehaviour
 
     private void Update()
     {
-        if(Input.GetMouseButtonDown(1))
+        if(Input.GetMouseButtonDown(1)&&!GSSquare.Instance.sprite.enabled) //摁下右键且不在拖拽，可以开启范围显示
         {
             rangeVis = !rangeVis;
             cirRGSP.SetActive(rangeVis);
@@ -209,7 +218,7 @@ public class MortarCon : MonoBehaviour
                 cirDMSP.transform.position = new Vector3(rcx, cirDMSP.transform.position.y, rcz);
                 cirDMSP.transform.eulerAngles = new Vector3(90, 0, 0);
 
-            }
+            }else roState = MortarRoState.onRotate;//射线未击中范围时必须改为
         }
 
 

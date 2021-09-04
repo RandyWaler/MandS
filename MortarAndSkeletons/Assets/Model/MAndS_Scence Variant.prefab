@@ -25,23 +25,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 675a45e1810c1a6458520a3246c32d27, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &3831179177020002529
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3929380853785918100}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fe6618bda2031174498aa4a641b3332b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  SkeletonS: []
-  sktAim: {fileID: 0}
-  creatTime: 2
-  maxSktNum: 10
-  randRange: 40
 --- !u!1001 &4199218253214271429
 PrefabInstance:
   m_ObjectHideFlags: 0

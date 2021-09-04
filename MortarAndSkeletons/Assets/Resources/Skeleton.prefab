@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   aim: {fileID: 0}
-  standRange: 5
+  standRange: 15
   roSpeed: 90
 --- !u!1001 &5123848138254308447
 PrefabInstance:

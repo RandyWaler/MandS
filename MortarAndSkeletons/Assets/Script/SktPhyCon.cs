@@ -63,13 +63,13 @@ public class SktPhyCon : MonoBehaviour,PoolObj
                     setShader = true;
                     bodyMat.shader = Shader.Find("Legacy Shaders/Transparent/Diffuse");
                     daggerMat.shader = Shader.Find("Legacy Shaders/Transparent/Diffuse");
-                    Debug.Log("Change Shader");
+                    //Debug.Log("Change Shader");
                 }
                 dspTime += Time.deltaTime;
                 if(dspTime>=dispTime)//Íê³ÉÏûÊ§
                 {
                     hangUp();
-                    Debug.Log("Disappear");
+                    //Debug.Log("Disappear");
                 }
 
                 dpercent = 1.0f - dspTime / dispTime;

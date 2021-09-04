@@ -16,6 +16,8 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
     Transform roChild;//子旋转节点
 
     public Transform lookTrans;//注视目标
+
+    [HideInInspector]
     public float outRange = 20.0f;//保持在注视目标多少范围外
     float outR2;//乘方
     public float moveSpeed=15.0f;//移动速度
@@ -29,12 +31,9 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
     bool isdrag = false;//当前这一次的Drag是否有效，是否不因为hvdrag --- Update正在设置位置&方位 而被阻止
 
     Vector3 deltaVec;//初始射线击中位置与gameObjec位置的差量(保证拖动的平滑，起步不跳位)
-    Vector3 udVec;//应用差量，初始差量会在Drag中逐渐被消除
     Vector3 rayHitVec;//射线击中的位置(已映射到物体transform.y)，用于Update中表现拖拽效果
 
-    public float maxDeltaDis = 0.3f;//最大容许差量距(小于容许差量将置0)
     public float moveDeltaSpeed = 100.0f;//移动补掉差量的速度
-    float md2;//乘方
 
 
     //temple 变量
@@ -51,13 +50,12 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
     {
         roChild = transform.GetChild(0);
         animator = roChild.GetComponent<Animator>();
-        layerMask = 1 << LayerMask.NameToLayer("mcollider");
+        layerMask = 1 << LayerMask.NameToLayer("scollider");
 
         odir = new Vector3(transform.position.x - lookTrans.position.x, 0, transform.position.z - lookTrans.position.z);
         odir = odir.normalized;
         
         outR2 = outRange * outRange;
-        md2 = maxDeltaDis * maxDeltaDis;
         
     }
 
@@ -86,6 +84,7 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
             {
                 hvdrag = false;
                 animator.SetBool(openHash, !enter);
+                GSSquare.Instance.gStones.Add(this);
             }
 
         }
@@ -93,20 +92,19 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
 
         if(isdrag&&candrag) //这里Drag中位置的设置委托给Update，而不是onDrag，一些从地面外回到地面，但只拖动几帧的情况，物体可能停在差量较大的位置
         {
-            lookVec = new Vector3(transform.position.x - rayHitVec.x, 0, transform.position.z - rayHitVec.z); //盗用
-            deltaDis = lookVec.x * lookVec.x + lookVec.z * lookVec.z;
+            
 
-            if (deltaDis <= md2) transform.position = rayHitVec;
+            if (enter) transform.position = rayHitVec+deltaVec;
             else //需要补齐差量
             {
+                lookVec = new Vector3(transform.position.x - rayHitVec.x, 0, transform.position.z - rayHitVec.z); //盗用
+                deltaDis = lookVec.x * lookVec.x + lookVec.z * lookVec.z;
                 deltaDis = Mathf.Sqrt(deltaDis);
                 deltaDis -= moveDeltaSpeed * Time.deltaTime;
                 lookVec = lookVec.normalized;
                 lookVec *= deltaDis;
-
                 transform.position = rayHitVec + lookVec;
-
-
+                deltaVec = new Vector3(transform.position.x - raycast.point.x, 0, transform.position.z - raycast.point.z);//重计差量
             }
 
         }
@@ -124,35 +122,28 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
     {
         
         enter = false;
-        if ((!candrag)&&(!hvdrag)&&(!isdrag))
-        {
-            Debug.Log("onExit");
-            Debug.Log("canDrag:" + candrag);
-            Debug.Log("hvDrag:" + hvdrag);
-            animator.SetBool(openHash, true);
-        }
+        if ((!candrag)&&(!hvdrag)&&(!isdrag)) animator.SetBool(openHash, true);
     }
 
     public void OnBeginDrag(PointerEventData eventData)
     {
-        Debug.Log("OnBeginDrag");
+        //Debug.Log("OnBeginDrag");
         
-        if (hvdrag) return; //已经拖拽过，Updae没有设置好位置方位，不能拖拽
+        if (hvdrag||MortarCon.Instance.rangeVis) return; //已经拖拽过，Updae没有设置好位置方位，不能拖拽，Mortar开启范围显示不能拖拽
         isdrag = true; //拖拽有效
         animator.SetBool(openHash, false);//应对边缘，从角位拖拽，Exit先于OnBeginDrag触发
+        GSSquare.Instance.sprite.enabled = true;
+        GSSquare.Instance.gStones.Remove(this);
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycast, float.MaxValue, layerMask))
         {
             candrag = true;
-            deltaVec = transform.position - raycast.point;
-            udVec = deltaVec;
+            deltaVec = new Vector3(transform.position.x - raycast.point.x, 0, transform.position.z - raycast.point.z);
         }
         else candrag = false;
 
     }
     public void OnDrag(PointerEventData eventData)
     {
-
-        
         if (hvdrag||!isdrag) return;
         //Debug.Log("OnDrag");
         if (Physics.Raycast(Camera.main.ScreenPointToRay(Input.mousePosition), out raycast, float.MaxValue, layerMask))
@@ -160,8 +151,7 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
             if (!candrag) //边缘位置移回，从onDrag的某一刻正式开启拖拽
             {
                 candrag = true;
-                deltaVec = transform.position - raycast.point;
-                udVec = deltaVec;
+                deltaVec = new Vector3(transform.position.x - raycast.point.x,0, transform.position.z - raycast.point.z);
             }
             rayHitVec = new Vector3(raycast.point.x, transform.position.y, raycast.point.z);
             
@@ -172,12 +162,11 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
 
     public void OnEndDrag(PointerEventData eventData)
     {
+        //Debug.Log("OnEndDrag");
         isdrag = false;
-
-
-        Debug.Log("OnEndDrag");
         hvdrag = true;
         candrag = false;
+        GSSquare.Instance.sprite.enabled = false;
         odir = new Vector3(transform.position.x - lookTrans.position.x, 0, transform.position.z - lookTrans.position.z);
         odir = odir.normalized;
         
