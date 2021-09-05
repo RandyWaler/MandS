@@ -76,6 +76,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -3440368002835654390, guid: 5c806e433e1e8484a96f0f6b64716a97, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 5c806e433e1e8484a96f0f6b64716a97, type: 3}
       propertyPath: m_Name
       value: MAndS_Scence Variant
@@ -83,6 +87,14 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 5c806e433e1e8484a96f0f6b64716a97, type: 3}
       propertyPath: m_Layer
       value: 6
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 5c806e433e1e8484a96f0f6b64716a97, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
+      objectReference: {fileID: 0}
+    - target: {fileID: 3344806833331916039, guid: 5c806e433e1e8484a96f0f6b64716a97, type: 3}
+      propertyPath: m_StaticEditorFlags
+      value: 4294967295
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 5c806e433e1e8484a96f0f6b64716a97, type: 3}
