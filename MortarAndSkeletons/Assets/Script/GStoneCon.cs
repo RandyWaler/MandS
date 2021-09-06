@@ -34,6 +34,9 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
     Vector3 rayHitVec;//射线击中的位置(已映射到物体transform.y)，用于Update中表现拖拽效果
 
     public float moveDeltaSpeed = 100.0f;//移动补掉差量的速度
+    public float maxDeltaDis = 6f;//最大容许差量，拖拽中可能反复出现 OnPointerEnter 和 OnPointerExit 导致错误的开启差量矫正，诱发位置突变
+    float md2=0;
+    bool outflag = false;//是否超出过最大容许量
 
 
     //temple 变量
@@ -58,6 +61,7 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
         odir = odir.normalized;
         
         outR2 = outRange * outRange;
+        md2 = maxDeltaDis * maxDeltaDis;
         
     }
 
@@ -94,19 +98,28 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
 
         if(isdrag&&candrag) //这里Drag中位置的设置委托给Update，而不是onDrag，一些从地面外回到地面，但只拖动几帧的情况，物体可能停在差量较大的位置
         {
-            
 
-            if (enter) transform.position = rayHitVec+deltaVec;
+            lookVec = new Vector3(transform.position.x - rayHitVec.x, 0, transform.position.z - rayHitVec.z); //盗用
+            deltaDis = lookVec.x * lookVec.x + lookVec.z * lookVec.z;
+
+            if (!outflag)
+            {
+                if (deltaDis >= md2)
+                {
+                    outflag = true;
+                }
+            }
+            else if (enter&&deltaDis<md2) outflag = false;//如果超出容许差量，必须重新enter
+
+            if (enter||!outflag) transform.position = rayHitVec+deltaVec;
             else //需要补齐差量
             {
-                lookVec = new Vector3(transform.position.x - rayHitVec.x, 0, transform.position.z - rayHitVec.z); //盗用
-                deltaDis = lookVec.x * lookVec.x + lookVec.z * lookVec.z;
                 deltaDis = Mathf.Sqrt(deltaDis);
                 deltaDis -= moveDeltaSpeed * Time.deltaTime;
                 lookVec = lookVec.normalized;
                 lookVec *= deltaDis;
                 transform.position = rayHitVec + lookVec;
-                deltaVec = new Vector3(transform.position.x - raycast.point.x, 0, transform.position.z - raycast.point.z);//重计差量
+                deltaVec = new Vector3(transform.position.x - raycast.point.x, 0, transform.position.z - raycast.point.z);//重计算差量
             }
 
         }

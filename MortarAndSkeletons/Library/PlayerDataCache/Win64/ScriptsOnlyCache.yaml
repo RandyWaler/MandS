@@ -17,8 +17,10 @@ ScriptsOnlyBuild:
     UnityEditor.Graphs.dll:
     - UnityEditor.Graphs.AnimationBlendTree.Graph
     - UnityEditor.Graphs.AnimationBlendTree.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.AnyStateNode
     - UnityEditor.Graphs.AnimationStateMachine.Graph
     - UnityEditor.Graphs.AnimationStateMachine.GraphGUI
+    - UnityEditor.Graphs.AnimationStateMachine.StateNode
     - UnityEditor.Graphs.AnimatorControllerTool
     UnityEditor.TestRunner.dll:
     - UnityEditor.TestTools.TestRunner.Api.CallbacksHolder
@@ -581,7 +583,7 @@ ScriptsOnlyBuild:
     className: MortarCon
   - hash:
       serializedVersion: 2
-      Hash: 88236bb2b1d3267a7a14fce13c006091
+      Hash: c7459aa9343983d504ff5d2bebb87b26
     assemblyName: Assembly-CSharp.dll
     namespaceName: 
     className: GStoneCon

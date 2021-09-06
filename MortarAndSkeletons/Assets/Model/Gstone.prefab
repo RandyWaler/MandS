@@ -293,3 +293,4 @@ MonoBehaviour:
   moveSpeed: 30
   roSpeed: 270
   moveDeltaSpeed: 100
+  maxDeltaDis: 6
