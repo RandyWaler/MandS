@@ -17,13 +17,13 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
 
     public Transform lookTrans;//注视目标
 
-    [HideInInspector]
     public float outRange = 20.0f;//保持在注视目标多少范围外
     float outR2;//乘方
     public float moveSpeed=15.0f;//移动速度
     public float roSpeed = 120f;//旋转注视速度
 
     Vector3 odir;//向注视目标反方向移动的单位向量 Awake EndDrag 会设置一次
+    bool posModel = true;//位置矫正的模式 true 移出 false 移动到射线击中点
 
     bool candrag = false;//能否拖拽，IBeginDragHandler & IDragHandler设置，却决于射线检测是否击中地面，在被置true时将设置碰撞点与物体位置的差量
     bool hvdrag = true;//是否被拖拽了，IEndDragHandler置true Update中调整位置&方位符合要求
@@ -69,6 +69,9 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
     {
         if(hvdrag&&lookTrans) //需要调整位置&方位
         {
+            
+
+            //旋转矫正
             lookVec = new Vector3(lookTrans.position.x - transform.position.x, 0, lookTrans.position.z - transform.position.z);
             deltaAngle = Vector3.Angle(roChild.forward, lookVec);
             if (deltaAngle >= 1.0f)
@@ -78,15 +81,26 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
             }
             else roChild.LookAt(new Vector3(lookTrans.position.x,transform.position.y,lookTrans.position.z),Vector3.up);
 
+            //位置矫正
 
-            deltaDis = lookVec.x * lookVec.x + lookVec.z * lookVec.z;
-            if(deltaDis<=outR2)
+            if (posModel)
             {
-                transform.Translate(odir * moveSpeed * Time.deltaTime);
+                deltaDis = lookVec.x * lookVec.x + lookVec.z * lookVec.z;
+                if(deltaDis<outR2) transform.Translate(odir * moveSpeed * Time.deltaTime);
+            }
+            else
+            {
+                deltaDis = Mathf.Pow(transform.position.x - rayHitVec.x, 2) + Mathf.Pow(transform.position.z - rayHitVec.z, 2);
+                if(deltaDis > 0.1f)
+                {
+                    odir = new Vector3(rayHitVec.x - transform.position.x, 0, rayHitVec.z - transform.position.z);
+                    odir = odir.normalized;
+                    transform.Translate(odir * moveSpeed * Time.deltaTime);
+                }
+                
             }
 
-
-            if (deltaDis >= outR2 && deltaAngle < 1.0f)
+            if ( ((posModel&&deltaDis >= outR2)||(!posModel&&deltaDis<0.1f)) && deltaAngle < 1.0f)
             {
                 hvdrag = false;
                 animator.SetBool(openHash, !enter);
@@ -111,7 +125,7 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
             }
             else if (enter&&deltaDis<md2) outflag = false;//如果超出容许差量，必须重新enter
 
-            if (enter||!outflag) transform.position = rayHitVec+deltaVec;
+            if (enter||!outflag) transform.position = rayHitVec+deltaVec; //避免边缘拖拽时鼠标exit错误开启差量矫正 只有enxit且差量距离过大才会进行矫正
             else //需要补齐差量
             {
                 deltaDis = Mathf.Sqrt(deltaDis);
@@ -192,8 +206,24 @@ public class GStoneCon : MonoBehaviour,IPointerEnterHandler,IPointerExitHandler,
         hvdrag = true;
         candrag = false;
         GSSquare.Instance.sprite.enabled = false;
-        odir = new Vector3(transform.position.x - lookTrans.position.x, 0, transform.position.z - lookTrans.position.z);
-        odir = odir.normalized;
+
+        lookVec = new Vector3(lookTrans.position.x - transform.position.x, 0, lookTrans.position.z - transform.position.z);
+        deltaDis = lookVec.x * lookVec.x + lookVec.z * lookVec.z;
+        if (deltaDis <= outR2)
+        {
+            posModel = true;//需要移出
+            odir = new Vector3(transform.position.x - lookTrans.position.x, 0, transform.position.z - lookTrans.position.z);
+            odir = odir.normalized;
+        }
+        else
+        {
+            posModel = false;//需要移动到射线击中位置
+            odir = new Vector3(rayHitVec.x- transform.position.x, 0, rayHitVec.z - transform.position.z);
+            odir = odir.normalized;
+
+        }
+
+        
         
     }
 }
